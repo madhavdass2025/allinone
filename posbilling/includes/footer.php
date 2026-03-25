@@ -1,4 +1,7 @@
-    </div> <!-- Close container-fluid from header.php -->
+        </div> <!-- Close content-wrapper / content-row -->
+    </div> <!-- Close #content -->
+</div> <!-- Close #wrapper -->
+<?php endif; ?>
 
     <!-- Bootstrap 5 Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

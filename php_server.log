@@ -1,0 +1,7 @@
+[Wed Mar 25 08:22:04 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
+[Wed Mar 25 08:22:25 2026] [::1]:53124 Accepted
+[Wed Mar 25 08:22:25 2026] [::1]:53124 [200]: GET /login.php
+[Wed Mar 25 08:22:25 2026] [::1]:53124 Closing
+[Wed Mar 25 08:22:26 2026] [::1]:53126 Accepted
+[Wed Mar 25 08:22:26 2026] [::1]:53126 [200]: POST /login.php
+[Wed Mar 25 08:22:26 2026] [::1]:53126 Closing

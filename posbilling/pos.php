@@ -105,7 +105,6 @@ $all_products = $conn->query("SELECT p.*, SUM(b.current_qty) as stock FROM produ
                     <div id="advance_info_alert" class="alert alert-info py-2 small mb-3" style="display:none;">
                         Available Advance: <strong id="avail_advance">₹0.00</strong>
                     </div>
-                    </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-2">
                         <span>Subtotal:</span>

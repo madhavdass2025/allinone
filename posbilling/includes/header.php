@@ -16,72 +16,43 @@
 require_once 'includes/db.php';
 require_once 'includes/functions.php';
 if (isLoggedIn()): ?>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="dashboard.php">
-                <i class="fas fa-prescription-bottle-alt me-2"></i>Pharmacy ERP
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="dashboard.php"><i class="fas fa-tachometer-alt me-1"></i> Dashboard</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-box me-1"></i> Inventory
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="products.php">Products</a></li>
-                            <li><a class="dropdown-item" href="batches.php">Batches</a></li>
-                            <li><a class="dropdown-item" href="expiry_alerts.php">Expiry Alerts</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="pos.php"><i class="fas fa-shopping-cart me-1"></i> POS / Sales</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-truck me-1"></i> Procurement
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="suppliers.php">Suppliers</a></li>
-                            <li><a class="dropdown-item" href="purchase_list.php">Purchase History</a></li>
-                            <li><a class="dropdown-item" href="purchases.php">New Purchase</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-undo me-1"></i> Returns
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="sale_returns.php">Sale Returns</a></li>
-                            <li><a class="dropdown-item" href="purchase_returns.php">Purchase Returns</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-users me-1"></i> Customers
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="customers.php">Customer List</a></li>
-                            <li><a class="dropdown-item" href="payments.php">Payments</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="reports.php"><i class="fas fa-chart-line me-1"></i> Reports</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center">
-                    <span class="text-white me-3"><i class="fas fa-user-circle me-1"></i> <?php echo $_SESSION['full_name']; ?></span>
-                    <a href="logout.php" class="btn btn-outline-light btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                </div>
-            </div>
+<div id="wrapper">
+    <!-- Sidebar -->
+    <nav id="sidebar" class="no-print">
+        <div class="sidebar-header border-bottom">
+            <h4 class="mb-0 fw-bold"><i class="fas fa-prescription-bottle-alt me-2"></i>Pharmacy</h4>
+        </div>
+
+        <ul class="list-unstyled components">
+            <li><a href="dashboard.php"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a></li>
+            <li><a href="pos.php"><i class="fas fa-shopping-cart me-2"></i> POS / Sales</a></li>
+
+            <li class="px-3 py-2 small text-uppercase opacity-50 mt-3 fw-bold">Inventory</li>
+            <li><a href="products.php"><i class="fas fa-capsules me-2"></i> Products</a></li>
+            <li><a href="batches.php"><i class="fas fa-layer-group me-2"></i> Batch Stock</a></li>
+            <li><a href="expiry_alerts.php"><i class="fas fa-calendar-times me-2"></i> Expiry Alerts</a></li>
+
+            <li class="px-3 py-2 small text-uppercase opacity-50 mt-3 fw-bold">Procurement</li>
+            <li><a href="suppliers.php"><i class="fas fa-truck me-2"></i> Suppliers</a></li>
+            <li><a href="purchase_list.php"><i class="fas fa-history me-2"></i> Purchase History</a></li>
+            <li><a href="purchases.php"><i class="fas fa-plus-circle me-2"></i> New Purchase</a></li>
+
+            <li class="px-3 py-2 small text-uppercase opacity-50 mt-3 fw-bold">Management</li>
+            <li><a href="customers.php"><i class="fas fa-users me-2"></i> Customers</a></li>
+            <li><a href="payments.php"><i class="fas fa-money-bill-wave me-2"></i> Payments</a></li>
+            <li><a href="sale_returns.php"><i class="fas fa-undo me-2"></i> Sale Returns</a></li>
+            <li><a href="purchase_returns.php"><i class="fas fa-undo-alt me-2"></i> Purchase Returns</a></li>
+            <li><a href="reports.php"><i class="fas fa-chart-line me-2"></i> Reports</a></li>
+        </ul>
+
+        <div class="mt-auto p-3 border-top bg-dark text-white">
+            <div class="small mb-2"><i class="fas fa-user-circle me-1"></i> <?php echo $_SESSION['full_name']; ?></div>
+            <a href="logout.php" class="btn btn-danger btn-sm w-100"><i class="fas fa-sign-out-alt me-1"></i> Logout</a>
         </div>
     </nav>
-    <div class="container-fluid mt-4">
+
+    <!-- Page Content -->
+    <div id="content">
         <div class="row">
             <div class="col-12">
                 <?php flashMessage('success'); ?>
