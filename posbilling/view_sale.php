@@ -91,7 +91,23 @@ $items = $item_stmt->get_result();
 
         <div class="row">
             <div class="col-md-7">
-                <p class="text-muted"><em>Note: Medicines once sold will not be taken back unless expired or damaged.</em></p>
+                <div class="card bg-light border-0 mb-3">
+                    <div class="card-body p-3">
+                        <h6 class="fw-bold mb-2">Payment Details:</h6>
+                        <table class="table table-sm table-borderless mb-0">
+                            <?php
+                            $payments_res = $conn->query("SELECT * FROM payments WHERE sale_id = $sale_id");
+                            while($pay = $payments_res->fetch_assoc()):
+                            ?>
+                            <tr>
+                                <td width="150"><?php echo $pay['payment_mode']; ?>:</td>
+                                <td><?php echo formatCurrency($pay['amount']); ?> <?php echo $pay['reference_num'] ? "({$pay['reference_num']})" : ""; ?></td>
+                            </tr>
+                            <?php endwhile; ?>
+                        </table>
+                    </div>
+                </div>
+                <p class="text-muted small"><em>Note: Medicines once sold will not be taken back unless expired or damaged.</em></p>
             </div>
             <div class="col-md-5">
                 <table class="table table-borderless">

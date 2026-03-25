@@ -139,14 +139,47 @@ $all_products = $conn->query("SELECT p.*, SUM(b.current_qty) as stock FROM produ
                             <input type="number" step="0.01" name="amount_paid" class="form-control">
                         </div>
                     </div>
-                    <div id="mixed_payment_div" style="display:none;">
+                    <div id="mixed_payment_div" style="display:none;" class="bg-light p-3 border rounded">
+                        <h6 class="fw-bold mb-3 border-bottom pb-2">Split Payment Details</h6>
                         <div class="row g-2 mb-2">
-                            <div class="col-6"><label class="small">Cash</label><input type="number" name="split_cash" class="form-control form-control-sm split-input" value="0"></div>
-                            <div class="col-6"><label class="small">Card</label><input type="number" name="split_card" class="form-control form-control-sm split-input" value="0"></div>
+                            <div class="col-6">
+                                <label class="small fw-bold">Cash</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" name="split_cash" class="form-control split-input" value="0" step="0.01">
+                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_cash"><i class="fas fa-magic"></i></button>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="small fw-bold">Card</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" name="split_card" class="form-control split-input" value="0" step="0.01">
+                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_card"><i class="fas fa-magic"></i></button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="row g-2 mb-2">
-                            <div class="col-6"><label class="small">UPI</label><input type="number" name="split_upi" class="form-control form-control-sm split-input" value="0"></div>
-                            <div class="col-6"><label class="small">Credit</label><input type="number" name="split_credit" class="form-control form-control-sm split-input" value="0"></div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="small fw-bold">UPI</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" name="split_upi" class="form-control split-input" value="0" step="0.01">
+                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_upi"><i class="fas fa-magic"></i></button>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="small fw-bold">On Credit</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" name="split_credit" class="form-control split-input" value="0" step="0.01">
+                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_credit"><i class="fas fa-magic"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between small border-top pt-2">
+                            <span>Total Entered:</span>
+                            <span id="split_total" class="fw-bold text-success">₹0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between small">
+                            <span>Remaining:</span>
+                            <span id="split_remaining" class="fw-bold text-danger">₹0.00</span>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-success w-100 py-3 fw-bold fs-5">PROCESS SALE</button>
@@ -213,6 +246,7 @@ function renderTable() {
     document.getElementById('tax_amount').innerText = '₹' + totalTax.toFixed(2);
     document.getElementById('grand_total').innerText = '₹' + (subtotal + totalTax - discount).toFixed(2);
     document.getElementById('items_input').value = JSON.stringify(items);
+    updateSplitSummary();
 }
 
 function updateQty(index, val) {
@@ -234,11 +268,42 @@ function toggleMixedPayment(val) {
     if (val === 'Mixed') {
         document.getElementById('mixed_payment_div').style.display = 'block';
         document.getElementById('single_payment_div').style.display = 'none';
+        updateSplitSummary();
     } else {
         document.getElementById('mixed_payment_div').style.display = 'none';
         document.getElementById('single_payment_div').style.display = 'block';
     }
 }
+
+function updateSplitSummary() {
+    const grandTotal = parseFloat(document.getElementById('grand_total').innerText.replace('₹', '')) || 0;
+    let totalEntered = 0;
+    document.querySelectorAll('.split-input').forEach(input => {
+        totalEntered += parseFloat(input.value) || 0;
+    });
+
+    document.getElementById('split_total').innerText = '₹' + totalEntered.toFixed(2);
+    document.getElementById('split_remaining').innerText = '₹' + Math.max(0, grandTotal - totalEntered).toFixed(2);
+}
+
+document.querySelectorAll('.split-input').forEach(input => {
+    input.addEventListener('input', updateSplitSummary);
+});
+
+document.querySelectorAll('.autofill-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const fieldName = this.getAttribute('data-field');
+        const grandTotal = parseFloat(document.getElementById('grand_total').innerText.replace('₹', '')) || 0;
+        let otherTotal = 0;
+        document.querySelectorAll('.split-input').forEach(input => {
+            if (input.name !== fieldName) {
+                otherTotal += parseFloat(input.value) || 0;
+            }
+        });
+        document.querySelector(`input[name="${fieldName}"]`).value = Math.max(0, grandTotal - otherTotal).toFixed(2);
+        updateSplitSummary();
+    });
+});
 
 document.getElementById('discount').addEventListener('input', renderTable);
 </script>
