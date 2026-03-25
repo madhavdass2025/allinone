@@ -1,12 +1,12 @@
 USE pharmacy_erp;
 
 -- 1. Products
-INSERT INTO products (name, generic_name, category, hsn_code, gst_rate, igst_rate) VALUES
-('Paracetamol 500mg', 'Paracetamol', 'Analgesic', '3004', 12.00, 12.00),
-('Amoxicillin 250mg', 'Amoxicillin', 'Antibiotic', '3004', 12.00, 12.00),
-('Cetirizine 10mg', 'Cetirizine', 'Antihistamine', '3004', 12.00, 12.00),
-('Metformin 500mg', 'Metformin', 'Anti-Diabetic', '3004', 12.00, 12.00),
-('Atorvastatin 10mg', 'Atorvastatin', 'Cholesterol', '3004', 12.00, 12.00);
+INSERT INTO products (name, generic_name, category, hsn_code, gst_rate, igst_rate, reorder_level) VALUES
+('Paracetamol 500mg', 'Paracetamol', 'Analgesic', '3004', 12.00, 12.00, 50),
+('Amoxicillin 250mg', 'Amoxicillin', 'Antibiotic', '3004', 12.00, 12.00, 20),
+('Cetirizine 10mg', 'Cetirizine', 'Antihistamine', '3004', 12.00, 12.00, 30),
+('Metformin 500mg', 'Metformin', 'Anti-Diabetic', '3004', 12.00, 12.00, 40),
+('Atorvastatin 10mg', 'Atorvastatin', 'Cholesterol', '3004', 12.00, 12.00, 15);
 
 -- 2. Suppliers
 INSERT INTO suppliers (name, contact_person, phone, email, address, gstin, state, balance) VALUES

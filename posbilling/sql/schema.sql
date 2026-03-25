@@ -10,6 +10,7 @@ CREATE TABLE products (
     hsn_code VARCHAR(20),
     gst_rate DECIMAL(5,2) DEFAULT 0.00,
     igst_rate DECIMAL(5,2) DEFAULT 0.00,
+    reorder_level INT DEFAULT 10,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX (hsn_code),
     INDEX (name)

@@ -8,8 +8,8 @@ $conn = get_db_conn();
 $expiry_query = "SELECT b.*, p.name as product_name FROM batches b JOIN products p ON b.product_id = p.id WHERE b.expiry_date <= DATE_ADD(CURDATE(), INTERVAL 90 DAY) AND b.current_qty > 0 ORDER BY b.expiry_date ASC";
 $expiry_results = $conn->query($expiry_query);
 
-// Low Stock (< 10 units)
-$low_stock_query = "SELECT b.*, p.name as product_name FROM batches b JOIN products p ON b.product_id = p.id WHERE b.current_qty < 10 AND b.current_qty > 0";
+// Low Stock (Based on Reorder Level)
+$low_stock_query = "SELECT p.name as product_name, p.reorder_level, SUM(b.current_qty) as total_qty FROM products p JOIN batches b ON p.id = b.product_id GROUP BY p.id HAVING SUM(b.current_qty) <= p.reorder_level";
 $low_stock_results = $conn->query($low_stock_query);
 
 // Sales Report (current month)
@@ -66,7 +66,7 @@ $sales_report = $conn->query($sales_report_query);
     <div class="col-md-6 mb-4">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold text-warning"><i class="fas fa-exclamation-triangle me-2"></i>Low Stock Items (< 10)</h5>
+                <h5 class="mb-0 fw-bold text-warning"><i class="fas fa-exclamation-triangle me-2"></i>Low Stock (Reorder Alerts)</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -74,8 +74,8 @@ $sales_report = $conn->query($sales_report_query);
                         <thead class="table-light">
                             <tr>
                                 <th>Product</th>
-                                <th>Batch</th>
-                                <th>Current Qty</th>
+                                <th>Reorder Level</th>
+                                <th>Total Stock</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -83,12 +83,12 @@ $sales_report = $conn->query($sales_report_query);
                                 <?php while($row = $low_stock_results->fetch_assoc()): ?>
                                 <tr>
                                     <td><?php echo $row['product_name']; ?></td>
-                                    <td><?php echo $row['batch_num']; ?></td>
-                                    <td class="fw-bold text-warning"><?php echo $row['current_qty']; ?></td>
+                                    <td><?php echo $row['reorder_level']; ?></td>
+                                    <td class="fw-bold text-danger"><?php echo $row['total_qty']; ?></td>
                                 </tr>
                                 <?php endwhile; ?>
                             <?php else: ?>
-                                <tr><td colspan="3" class="text-center py-4">No low-stock items found.</td></tr>
+                                <tr><td colspan="3" class="text-center py-4">No products below reorder level.</td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>

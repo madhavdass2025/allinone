@@ -15,16 +15,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hsn = sanitizeInput($_POST['hsn_code']);
     $gst = (float)$_POST['gst_rate'];
     $igst = (float)$_POST['igst_rate'];
+    $reorder = (int)$_POST['reorder_level'];
 
     if (isset($_POST['product_id']) && !empty($_POST['product_id'])) {
         $id = (int)$_POST['product_id'];
-        $stmt = $conn->prepare("UPDATE products SET name = ?, generic_name = ?, category = ?, hsn_code = ?, gst_rate = ?, igst_rate = ? WHERE id = ?");
-        $stmt->bind_param("ssssddi", $name, $generic, $category, $hsn, $gst, $igst, $id);
+        $stmt = $conn->prepare("UPDATE products SET name = ?, generic_name = ?, category = ?, hsn_code = ?, gst_rate = ?, igst_rate = ?, reorder_level = ? WHERE id = ?");
+        $stmt->bind_param("ssssddii", $name, $generic, $category, $hsn, $gst, $igst, $reorder, $id);
         $stmt->execute();
         flashMessage('success', 'Product updated successfully.');
     } else {
-        $stmt = $conn->prepare("INSERT INTO products (name, generic_name, category, hsn_code, gst_rate, igst_rate) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssdd", $name, $generic, $category, $hsn, $gst, $igst);
+        $stmt = $conn->prepare("INSERT INTO products (name, generic_name, category, hsn_code, gst_rate, igst_rate, reorder_level) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssddi", $name, $generic, $category, $hsn, $gst, $igst, $reorder);
         $stmt->execute();
         flashMessage('success', 'Product added successfully.');
     }
@@ -132,11 +133,17 @@ if ($search) {
                             <label class="form-label">HSN Code</label>
                             <input type="text" name="hsn_code" id="hsn_code" class="form-control">
                         </div>
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Reorder Level</label>
+                            <input type="number" name="reorder_level" id="reorder_level" class="form-control" value="10">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label">GST %</label>
                             <input type="number" step="0.01" name="gst_rate" id="gst_rate" class="form-control" value="0">
                         </div>
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label">IGST %</label>
                             <input type="number" step="0.01" name="igst_rate" id="igst_rate" class="form-control" value="0">
                         </div>
@@ -162,6 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('generic_name').value = data.generic_name;
             document.getElementById('category').value = data.category;
             document.getElementById('hsn_code').value = data.hsn_code;
+            document.getElementById('reorder_level').value = data.reorder_level;
             document.getElementById('gst_rate').value = data.gst_rate;
             document.getElementById('igst_rate').value = data.igst_rate;
 

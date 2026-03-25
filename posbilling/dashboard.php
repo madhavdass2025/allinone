@@ -12,8 +12,8 @@ $sales_today = ($sales_today_res && $row = $sales_today_res->fetch_assoc()) ? ($
 $total_customers_res = $conn->query("SELECT COUNT(*) as count FROM customers");
 $total_customers = ($total_customers_res && $row = $total_customers_res->fetch_assoc()) ? $row['count'] : 0;
 
-$low_stock_res = $conn->query("SELECT COUNT(*) as count FROM batches WHERE current_qty < 10");
-$low_stock = ($low_stock_res && $row = $low_stock_res->fetch_assoc()) ? $row['count'] : 0;
+$low_stock_res = $conn->query("SELECT COUNT(DISTINCT p.id) as count FROM products p JOIN batches b ON p.id = b.product_id GROUP BY p.id HAVING SUM(b.current_qty) <= p.reorder_level");
+$low_stock = ($low_stock_res) ? $low_stock_res->num_rows : 0;
 
 $expired_soon_res = $conn->query("SELECT COUNT(*) as count FROM batches WHERE expiry_date <= DATE_ADD(CURDATE(), INTERVAL 90 DAY)");
 $expired_soon = ($expired_soon_res && $row = $expired_soon_res->fetch_assoc()) ? $row['count'] : 0;
