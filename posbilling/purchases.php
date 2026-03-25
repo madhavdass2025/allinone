@@ -41,7 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $total_amount += $item_total;
         }
 
-        $conn->prepare("UPDATE purchases SET total_amount = ? WHERE id = ?")->bind_param("di", $total_amount, $purchase_id)->execute();
+        $update_p_stmt = $conn->prepare("UPDATE purchases SET total_amount = ? WHERE id = ?");
+        $update_p_stmt->bind_param("di", $total_amount, $purchase_id);
+        $update_p_stmt->execute();
         $conn->commit();
         flashMessage('success', 'Purchase recorded successfully.');
     } catch (Exception $e) {
