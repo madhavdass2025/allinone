@@ -47,7 +47,6 @@ function getPagination($total_records, $limit, $page, $url) {
     $html = '<nav aria-label="Page navigation"><ul class="pagination pagination-sm justify-content-end mb-0 no-print">';
 
     $prev_disabled = ($page <= 1) ? 'disabled' : '';
-    $html .= '<li class="page-item ' . $prev_disabled . '"><a class="page-item" href="' . $url . '&page=' . ($page - 1) . '"></a></li>';
     $html .= "<li class='page-item $prev_disabled'><a class='page-link' href='{$url}&page=" . ($page - 1) . "'>Previous</a></li>";
 
     for ($i = 1; $i <= $total_pages; $i++) {

@@ -44,6 +44,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $update_p_stmt = $conn->prepare("UPDATE purchases SET total_amount = ? WHERE id = ?");
         $update_p_stmt->bind_param("di", $total_amount, $purchase_id);
         $update_p_stmt->execute();
+
+        // Financials: Update supplier balance (increase debt)
+        $upd_supp = $conn->prepare("UPDATE suppliers SET balance = balance + ? WHERE id = ?");
+        $upd_supp->bind_param("di", $total_amount, $supplier_id);
+        $upd_supp->execute();
+
+        // Ledger Entry for Purchase
+        $new_bal = 0;
+        $bal_res = $conn->query("SELECT balance FROM suppliers WHERE id = $supplier_id");
+        if ($bal_row = $bal_res->fetch_assoc()) $new_bal = $bal_row['balance'];
+
+        $ledger_stmt = $conn->prepare("INSERT INTO ledger (account_type, account_id, transaction_type, amount, balance_after, reference_type, reference_id, description) VALUES ('Supplier', ?, 'Credit', ?, ?, 'Purchase', ?, ?)");
+        $desc = "Purchase Invoice: " . $invoice_num;
+        $ledger_stmt->bind_param("iddis", $supplier_id, $total_amount, $new_bal, $purchase_id, $desc);
+        $ledger_stmt->execute();
+
         $conn->commit();
         flashMessage('success', 'Purchase recorded successfully.');
     } catch (Exception $e) {

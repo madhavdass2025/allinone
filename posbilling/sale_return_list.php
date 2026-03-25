@@ -14,11 +14,19 @@ if ($search) {
     $where .= " AND (s.invoice_num LIKE '%$search%' OR c.name LIKE '%$search%')";
 }
 
-$total_res = $conn->query("SELECT COUNT(*) as count FROM sale_returns sr JOIN sales s ON sr.sale_id = s.id LEFT JOIN customers c ON s.customer_id = c.id $where");
-$total_records = $total_res->fetch_assoc()['count'];
+$count_stmt = $conn->prepare("SELECT COUNT(*) as count FROM sale_returns sr JOIN sales s ON sr.sale_id = s.id LEFT JOIN customers c ON s.customer_id = c.id $where");
+if ($search) $count_stmt->bind_param("ss", $searchTerm, $searchTerm);
+$count_stmt->execute();
+$total_records = $count_stmt->get_result()->fetch_assoc()['count'];
 
-$query = "SELECT sr.*, s.invoice_num, c.name as customer_name FROM sale_returns sr JOIN sales s ON sr.sale_id = s.id LEFT JOIN customers c ON s.customer_id = c.id $where ORDER BY sr.return_date DESC LIMIT $start, $limit";
-$returns = $conn->query($query);
+$stmt = $conn->prepare("SELECT sr.*, s.invoice_num, c.name as customer_name FROM sale_returns sr JOIN sales s ON sr.sale_id = s.id LEFT JOIN customers c ON s.customer_id = c.id $where ORDER BY sr.return_date DESC LIMIT ?, ?");
+if ($search) {
+    $stmt->bind_param("ssii", $searchTerm, $searchTerm, $start, $limit);
+} else {
+    $stmt->bind_param("ii", $start, $limit);
+}
+$stmt->execute();
+$returns = $stmt->get_result();
 ?>
 
 <div class="row">

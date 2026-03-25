@@ -14,17 +14,25 @@ if ($search) {
     $where .= " AND (p.name LIKE '%$search%' OR p.generic_name LIKE '%$search%')";
 }
 
-$total_res = $conn->query("SELECT COUNT(*) as count FROM products p $where");
-$total_records = $total_res->fetch_assoc()['count'];
+$count_stmt = $conn->prepare("SELECT COUNT(*) as count FROM products p $where");
+if ($search) $count_stmt->bind_param("ss", $searchTerm, $searchTerm);
+$count_stmt->execute();
+$total_records = $count_stmt->get_result()->fetch_assoc()['count'];
 
-$query = "SELECT p.*, IFNULL(SUM(b.current_qty), 0) as total_stock
+$stmt = $conn->prepare("SELECT p.*, IFNULL(SUM(b.current_qty), 0) as total_stock
           FROM products p
           LEFT JOIN batches b ON p.id = b.product_id
           $where
           GROUP BY p.id
           ORDER BY p.name ASC
-          LIMIT $start, $limit";
-$products = $conn->query($query);
+          LIMIT ?, ?");
+if ($search) {
+    $stmt->bind_param("ssii", $searchTerm, $searchTerm, $start, $limit);
+} else {
+    $stmt->bind_param("ii", $start, $limit);
+}
+$stmt->execute();
+$products = $stmt->get_result();
 ?>
 
 <div class="row">

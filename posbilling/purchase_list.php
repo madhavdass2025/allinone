@@ -50,6 +50,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $upd_supp->bind_param("di", $amount, $supplier_id);
         $upd_supp->execute();
 
+        // Ledger Entry for Payment to Supplier
+        $new_bal = 0;
+        $bal_res = $conn->query("SELECT balance FROM suppliers WHERE id = $supplier_id");
+        if ($bal_row = $bal_res->fetch_assoc()) $new_bal = $bal_row['balance'];
+
+        $ledger_stmt = $conn->prepare("INSERT INTO ledger (account_type, account_id, transaction_type, amount, balance_after, reference_type, reference_id, description) VALUES ('Supplier', ?, 'Debit', ?, ?, 'Payment', ?, ?)");
+        $desc = "Payment for Purchase ID: $purchase_id via $mode";
+        $ledger_stmt->bind_param("iddis", $supplier_id, $amount, $new_bal, $purchase_id, $desc);
+        $ledger_stmt->execute();
+
         $conn->commit();
         flashMessage('success', 'Payment recorded successfully.');
     } catch (Exception $e) {
