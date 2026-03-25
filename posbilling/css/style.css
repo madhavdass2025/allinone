@@ -38,3 +38,24 @@ body {
     padding: 0.5em 0.8em;
     border-radius: 6px;
 }
+
+@media print {
+    .navbar, .btn, .no-print, form, .modal {
+        display: none !important;
+    }
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .table-responsive {
+        overflow: visible !important;
+    }
+    body {
+        background-color: white !important;
+    }
+    .container-fluid {
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+}

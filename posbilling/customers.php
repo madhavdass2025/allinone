@@ -44,9 +44,12 @@ if ($search) {
 <div class="row">
     <div class="col-md-12 d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold"><i class="fas fa-users me-2"></i>Customer Management</h3>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
-            <i class="fas fa-plus me-1"></i> Add Customer
-        </button>
+        <div>
+            <button onclick="window.print()" class="btn btn-outline-secondary no-print me-2"><i class="fas fa-print me-1"></i> Print List</button>
+            <button class="btn btn-primary no-print" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
+                <i class="fas fa-plus me-1"></i> Add Customer
+            </button>
+        </div>
     </div>
 </div>
 

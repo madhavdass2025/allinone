@@ -70,7 +70,10 @@ if ($search) {
 <div class="row">
     <div class="col-md-12 d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold"><i class="fas fa-list me-2"></i>Purchase List</h3>
-        <a href="purchases.php" class="btn btn-primary"><i class="fas fa-plus me-1"></i> New Purchase</a>
+        <div>
+            <button onclick="window.print()" class="btn btn-outline-secondary no-print me-2"><i class="fas fa-print me-1"></i> Print List</button>
+            <a href="purchases.php" class="btn btn-primary no-print"><i class="fas fa-plus me-1"></i> New Purchase</a>
+        </div>
     </div>
 </div>
 

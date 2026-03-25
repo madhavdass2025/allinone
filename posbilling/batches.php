@@ -19,6 +19,7 @@ if ($search) {
 <div class="row">
     <div class="col-md-12 d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold"><i class="fas fa-layer-group me-2"></i>Batch Inventory</h3>
+        <button onclick="window.print()" class="btn btn-outline-secondary no-print"><i class="fas fa-print me-1"></i> Print List</button>
     </div>
 </div>
 

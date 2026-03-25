@@ -18,8 +18,9 @@ $sales_report = $conn->query($sales_report_query);
 ?>
 
 <div class="row">
-    <div class="col-md-12 mb-4">
+    <div class="col-md-12 mb-4 d-flex justify-content-between align-items-center">
         <h3 class="fw-bold"><i class="fas fa-chart-bar me-2"></i>Reporting & Analytics</h3>
+        <button onclick="window.print()" class="btn btn-outline-secondary no-print"><i class="fas fa-print me-1"></i> Print Report</button>
     </div>
 </div>
 
