@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ((float)$_POST['split_cash'] > 0) $payments[] = ['mode' => 'Cash', 'amount' => (float)$_POST['split_cash'], 'ref' => 'Split'];
         if ((float)$_POST['split_card'] > 0) $payments[] = ['mode' => 'Card', 'amount' => (float)$_POST['split_card'], 'ref' => 'Split'];
         if ((float)$_POST['split_upi'] > 0) $payments[] = ['mode' => 'UPI', 'amount' => (float)$_POST['split_upi'], 'ref' => 'Split'];
+        if ((float)$_POST['split_advance'] > 0) $payments[] = ['mode' => 'Advance', 'amount' => (float)$_POST['split_advance'], 'ref' => 'Split'];
         if ((float)$_POST['split_credit'] > 0) $payments[] = ['mode' => 'Credit', 'amount' => (float)$_POST['split_credit'], 'ref' => 'Split'];
     } else {
         $amount_paid = (float)$_POST['amount_paid'];
@@ -97,13 +98,17 @@ $all_products = $conn->query("SELECT p.*, SUM(b.current_qty) as stock FROM produ
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label">Customer</label>
-                        <select name="customer_id" class="form-select" required>
+                        <select name="customer_id" id="customer_id" class="form-select" required onchange="fetchCustomerAdvance(this.value)">
                             <option value="0">Walk-in Customer</option>
                             <?php
-                            $customers = $conn->query("SELECT id, name FROM customers");
-                            while($c = $customers->fetch_assoc()) echo "<option value='{$c['id']}'>{$c['name']}</option>";
+                            $customers = $conn->query("SELECT id, name, advance_balance FROM customers");
+                            while($c = $customers->fetch_assoc()) echo "<option value='{$c['id']}' data-advance='{$c['advance_balance']}'>{$c['name']}</option>";
                             ?>
                         </select>
+                    </div>
+                    <div id="advance_info_alert" class="alert alert-info py-2 small mb-3" style="display:none;">
+                        Available Advance: <strong id="avail_advance">₹0.00</strong>
+                    </div>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-2">
@@ -157,7 +162,7 @@ $all_products = $conn->query("SELECT p.*, SUM(b.current_qty) as stock FROM produ
                                 </div>
                             </div>
                         </div>
-                        <div class="row g-2 mb-3">
+                        <div class="row g-2 mb-2">
                             <div class="col-6">
                                 <label class="small fw-bold">UPI</label>
                                 <div class="input-group input-group-sm">
@@ -165,6 +170,15 @@ $all_products = $conn->query("SELECT p.*, SUM(b.current_qty) as stock FROM produ
                                     <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_upi"><i class="fas fa-magic"></i></button>
                                 </div>
                             </div>
+                            <div class="col-6">
+                                <label class="small fw-bold">Advance</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" name="split_advance" class="form-control split-input" value="0" step="0.01">
+                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_advance"><i class="fas fa-magic"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
                             <div class="col-6">
                                 <label class="small fw-bold">On Credit</label>
                                 <div class="input-group input-group-sm">
@@ -304,6 +318,21 @@ document.querySelectorAll('.autofill-btn').forEach(btn => {
         updateSplitSummary();
     });
 });
+
+function fetchCustomerAdvance(val) {
+    const alert = document.getElementById('advance_info_alert');
+    const avail = document.getElementById('avail_advance');
+    const select = document.getElementById('customer_id');
+    const option = select.options[select.selectedIndex];
+    const advance = parseFloat(option.getAttribute('data-advance')) || 0;
+
+    if (advance > 0) {
+        alert.style.display = 'block';
+        avail.innerText = '₹' + advance.toFixed(2);
+    } else {
+        alert.style.display = 'none';
+    }
+}
 
 document.getElementById('discount').addEventListener('input', renderTable);
 </script>

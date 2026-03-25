@@ -93,9 +93,15 @@ class SalesService {
 
                 // If payment is made (not Credit), update customer due (record as CREDIT)
                 if ($payment['mode'] !== 'Credit' && $customer_id) {
-                    $cust_stmt = $this->conn->prepare("UPDATE customers SET current_due = current_due - ? WHERE id = ?");
-                    $cust_stmt->bind_param("di", $payment['amount'], $customer_id);
-                    $cust_stmt->execute();
+                    if ($payment['mode'] === 'Advance') {
+                        $cust_upd = $this->conn->prepare("UPDATE customers SET advance_balance = advance_balance - ?, current_due = current_due - ? WHERE id = ?");
+                        $cust_upd->bind_param("ddi", $payment['amount'], $payment['amount'], $customer_id);
+                        $cust_upd->execute();
+                    } else {
+                        $cust_stmt = $this->conn->prepare("UPDATE customers SET current_due = current_due - ? WHERE id = ?");
+                        $cust_stmt->bind_param("di", $payment['amount'], $customer_id);
+                        $cust_stmt->execute();
+                    }
 
                     $this->addToLedger('Customer', $customer_id, 'Credit', $payment['amount'], $sale_id, 'Payment', "Payment for INV: " . $invoice_num . " via " . $payment['mode']);
                 }
