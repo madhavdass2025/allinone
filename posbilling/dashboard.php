@@ -6,10 +6,17 @@ $conn = get_db_conn();
 
 // Basic Stats
 $today = date('Y-m-d');
-$sales_today = $conn->query("SELECT SUM(net_amount) as total FROM sales WHERE DATE(sale_date) = '$today'")->fetch_assoc()['total'] ?? 0;
-$total_customers = $conn->query("SELECT COUNT(*) as count FROM customers")->fetch_assoc()['count'];
-$low_stock = $conn->query("SELECT COUNT(*) as count FROM batches WHERE current_qty < 10")->fetch_assoc()['count'];
-$expired_soon = $conn->query("SELECT COUNT(*) as count FROM batches WHERE expiry_date <= DATE_ADD(CURDATE(), INTERVAL 90 DAY)")->fetch_assoc()['count'];
+$sales_today_res = $conn->query("SELECT SUM(net_amount) as total FROM sales WHERE DATE(sale_date) = '$today'");
+$sales_today = ($sales_today_res && $row = $sales_today_res->fetch_assoc()) ? ($row['total'] ?? 0) : 0;
+
+$total_customers_res = $conn->query("SELECT COUNT(*) as count FROM customers");
+$total_customers = ($total_customers_res && $row = $total_customers_res->fetch_assoc()) ? $row['count'] : 0;
+
+$low_stock_res = $conn->query("SELECT COUNT(*) as count FROM batches WHERE current_qty < 10");
+$low_stock = ($low_stock_res && $row = $low_stock_res->fetch_assoc()) ? $row['count'] : 0;
+
+$expired_soon_res = $conn->query("SELECT COUNT(*) as count FROM batches WHERE expiry_date <= DATE_ADD(CURDATE(), INTERVAL 90 DAY)");
+$expired_soon = ($expired_soon_res && $row = $expired_soon_res->fetch_assoc()) ? $row['count'] : 0;
 
 ?>
 <div class="row mb-4">

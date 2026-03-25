@@ -30,11 +30,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $search = isset($_GET['search']) ? sanitizeInput($_GET['search']) : '';
-$query = "SELECT * FROM customers";
 if ($search) {
-    $query .= " WHERE name LIKE '%$search%' OR phone LIKE '%$search%'";
+    $searchTerm = "%$search%";
+    $stmt = $conn->prepare("SELECT * FROM customers WHERE name LIKE ? OR phone LIKE ?");
+    $stmt->bind_param("ss", $searchTerm, $searchTerm);
+    $stmt->execute();
+    $customers = $stmt->get_result();
+} else {
+    $customers = $conn->query("SELECT * FROM customers");
 }
-$customers = $conn->query($query);
 ?>
 
 <div class="row">

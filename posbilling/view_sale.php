@@ -10,13 +10,19 @@ if (!isset($_GET['id'])) {
 }
 
 $sale_id = (int)$_GET['id'];
-$sale = $conn->query("SELECT s.*, c.name as customer_name, c.phone as customer_phone, c.address as customer_address FROM sales s LEFT JOIN customers c ON s.customer_id = c.id WHERE s.id = $sale_id")->fetch_assoc();
+$stmt = $conn->prepare("SELECT s.*, c.name as customer_name, c.phone as customer_phone, c.address as customer_address FROM sales s LEFT JOIN customers c ON s.customer_id = c.id WHERE s.id = ?");
+$stmt->bind_param("i", $sale_id);
+$stmt->execute();
+$sale = $stmt->get_result()->fetch_assoc();
 
 if (!$sale) {
     die("Sale not found.");
 }
 
-$items = $conn->query("SELECT si.*, p.name as product_name, b.batch_num FROM sale_items si JOIN products p ON si.product_id = p.id JOIN batches b ON si.batch_id = b.id WHERE si.sale_id = $sale_id");
+$item_stmt = $conn->prepare("SELECT si.*, p.name as product_name, b.batch_num FROM sale_items si JOIN products p ON si.product_id = p.id JOIN batches b ON si.batch_id = b.id WHERE si.sale_id = ?");
+$item_stmt->bind_param("i", $sale_id);
+$item_stmt->execute();
+$items = $item_stmt->get_result();
 ?>
 
 <div class="row">

@@ -32,11 +32,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Search Functionality
 $search = isset($_GET['search']) ? sanitizeInput($_GET['search']) : '';
-$query = "SELECT * FROM products";
 if ($search) {
-    $query .= " WHERE name LIKE '%$search%' OR generic_name LIKE '%$search%' OR hsn_code LIKE '%$search%'";
+    $searchTerm = "%$search%";
+    $stmt = $conn->prepare("SELECT * FROM products WHERE name LIKE ? OR generic_name LIKE ? OR hsn_code LIKE ?");
+    $stmt->bind_param("sss", $searchTerm, $searchTerm, $searchTerm);
+    $stmt->execute();
+    $products = $stmt->get_result();
+} else {
+    $products = $conn->query("SELECT * FROM products");
 }
-$products = $conn->query($query);
 ?>
 
 <div class="row">

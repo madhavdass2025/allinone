@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("CSRF token validation failed.");
     }
     $customer_id = (int)$_POST['customer_id'];
+    if ($customer_id === 0) $customer_id = null;
     $items = json_decode($_POST['items'], true);
     $discount = (float)$_POST['discount'];
     $payment_mode = $_POST['payment_mode'];

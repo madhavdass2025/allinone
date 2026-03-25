@@ -93,7 +93,7 @@ CREATE TABLE purchase_items (
 -- Sales (Header)
 CREATE TABLE sales (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT,
+    customer_id INT NULL,
     invoice_num VARCHAR(50) UNIQUE,
     sale_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     total_taxable_amount DECIMAL(15,2),
@@ -166,8 +166,8 @@ CREATE TABLE purchase_return_items (
 -- Payments (Supports Split-Mode)
 CREATE TABLE payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT,
-    supplier_id INT,
+    customer_id INT NULL,
+    supplier_id INT NULL,
     sale_id INT,
     purchase_id INT,
     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

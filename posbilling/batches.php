@@ -5,11 +5,15 @@ requireLogin();
 $conn = get_db_conn();
 
 $search = isset($_GET['search']) ? sanitizeInput($_GET['search']) : '';
-$query = "SELECT b.*, p.name as product_name FROM batches b JOIN products p ON b.product_id = p.id";
 if ($search) {
-    $query .= " WHERE p.name LIKE '%$search%' OR b.batch_num LIKE '%$search%'";
+    $searchTerm = "%$search%";
+    $stmt = $conn->prepare("SELECT b.*, p.name as product_name FROM batches b JOIN products p ON b.product_id = p.id WHERE p.name LIKE ? OR b.batch_num LIKE ?");
+    $stmt->bind_param("ss", $searchTerm, $searchTerm);
+    $stmt->execute();
+    $batches = $stmt->get_result();
+} else {
+    $batches = $conn->query("SELECT b.*, p.name as product_name FROM batches b JOIN products p ON b.product_id = p.id");
 }
-$batches = $conn->query($query);
 ?>
 
 <div class="row">

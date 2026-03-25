@@ -17,7 +17,8 @@ class SalesService {
             $total_net_amount = 0;
 
             // Fetch state information for GST
-            $shop_state = 'Delhi'; // Configurable
+            $config = include __DIR__ . '/../includes/config.php';
+            $shop_state = $config['shop_state'] ?? 'Delhi';
             $cust_state = '';
             if ($customer_id) {
                 $cs_stmt = $this->conn->prepare("SELECT state FROM customers WHERE id = ?");
@@ -74,21 +75,30 @@ class SalesService {
             $update_stmt->bind_param("ddddd", $total_taxable_amount, $total_tax_amount, $total_net_amount, $net_amount, $sale_id);
             $update_stmt->execute();
 
+            // Financial Ledger: Record total invoice as a single DEBIT
+            if ($customer_id) {
+                // Update customer due with full net amount first
+                $cust_stmt = $this->conn->prepare("UPDATE customers SET current_due = current_due + ? WHERE id = ?");
+                $cust_stmt->bind_param("di", $net_amount, $customer_id);
+                $cust_stmt->execute();
+
+                $this->addToLedger('Customer', $customer_id, 'Debit', $net_amount, $sale_id, 'Sale', "Sale Invoice: " . $invoice_num);
+            }
+
             // Process Payments
             foreach ($payments as $payment) {
                 $pay_stmt = $this->conn->prepare("INSERT INTO payments (customer_id, sale_id, amount, payment_mode, reference_num) VALUES (?, ?, ?, ?, ?)");
                 $pay_stmt->bind_param("iidss", $customer_id, $sale_id, $payment['amount'], $payment['mode'], $payment['ref']);
                 $pay_stmt->execute();
 
-                // If Credit, update customer due
-                if ($payment['mode'] === 'Credit' && $customer_id) {
-                    $cust_stmt = $this->conn->prepare("UPDATE customers SET current_due = current_due + ? WHERE id = ?");
+                // If payment is made (not Credit), update customer due (record as CREDIT)
+                if ($payment['mode'] !== 'Credit' && $customer_id) {
+                    $cust_stmt = $this->conn->prepare("UPDATE customers SET current_due = current_due - ? WHERE id = ?");
                     $cust_stmt->bind_param("di", $payment['amount'], $customer_id);
                     $cust_stmt->execute();
-                }
 
-                // Financial Ledger
-                $this->addToLedger('Customer', $customer_id, 'Debit', $payment['amount'], $sale_id, 'Sale', "Sale Invoice: " . $invoice_num);
+                    $this->addToLedger('Customer', $customer_id, 'Credit', $payment['amount'], $sale_id, 'Payment', "Payment for INV: " . $invoice_num . " via " . $payment['mode']);
+                }
             }
 
             $this->conn->commit();

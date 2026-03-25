@@ -5,6 +5,9 @@ requireLogin();
 $conn = get_db_conn();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verifyCSRFToken($_POST['csrf_token'])) {
+        die("CSRF token validation failed.");
+    }
     $name = sanitizeInput($_POST['name']);
     $contact = sanitizeInput($_POST['contact_person']);
     $phone = sanitizeInput($_POST['phone']);
@@ -28,11 +31,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $search = isset($_GET['search']) ? sanitizeInput($_GET['search']) : '';
-$query = "SELECT * FROM suppliers";
 if ($search) {
-    $query .= " WHERE name LIKE '%$search%' OR contact_person LIKE '%$search%'";
+    $searchTerm = "%$search%";
+    $stmt = $conn->prepare("SELECT * FROM suppliers WHERE name LIKE ? OR contact_person LIKE ?");
+    $stmt->bind_param("ss", $searchTerm, $searchTerm);
+    $stmt->execute();
+    $suppliers = $stmt->get_result();
+} else {
+    $suppliers = $conn->query("SELECT * FROM suppliers");
 }
-$suppliers = $conn->query($query);
 ?>
 
 <div class="row">
@@ -95,6 +102,7 @@ $suppliers = $conn->query($query);
 <div class="modal fade" id="addSupplierModal" tabindex="-1">
     <div class="modal-dialog">
         <form action="suppliers.php" method="POST">
+            <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Supplier Details</h5>
