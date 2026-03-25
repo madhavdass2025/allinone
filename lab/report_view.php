@@ -11,7 +11,13 @@ if (!isset($_GET['order_id'])) {
 }
 
 $order_id = (int)$_GET['order_id'];
-$order = $conn->query("SELECT o.*, c.name as owner_name FROM lab_orders o JOIN customers c ON o.customer_id = c.id WHERE o.id = $order_id")->fetch_assoc();
+$order_query = "SELECT o.*, c.name as owner_name, tc.name as category_name
+                FROM lab_orders o
+                JOIN customers c ON o.customer_id = c.id
+                JOIN test_types tt ON o.test_id = tt.id
+                JOIN test_categories tc ON tt.category_id = tc.id
+                WHERE o.id = $order_id";
+$order = $conn->query($order_query)->fetch_assoc();
 
 if (!$order) die("Order not found");
 
@@ -24,12 +30,26 @@ $results_res = $conn->query($res_query);
 $results = [];
 while($row = $results_res->fetch_assoc()) $results[] = $row;
 
-$generator = new ReportGenerator(new DefaultReportStrategy());
+// Select strategy based on user selection or category
+$selected_template = isset($_GET['template']) ? $_GET['template'] : $order['category_name'];
+$strategy = ReportGenerator::getStrategy($selected_template);
+$generator = new ReportGenerator($strategy);
 $report_html = $generator->generate($order, $results);
 ?>
 
-<div class="row no-print mb-4">
-    <div class="col-12 text-end">
+<div class="row no-print mb-4 align-items-center">
+    <div class="col-md-6">
+        <form method="GET" class="d-flex gap-2 align-items-center">
+            <input type="hidden" name="order_id" value="<?php echo $order_id; ?>">
+            <label class="small fw-bold text-muted mb-0">Change Template:</label>
+            <select name="template" class="form-select form-select-sm" style="width: 200px;" onchange="this.form.submit()">
+                <option value="Default" <?php echo ($selected_template == 'Default') ? 'selected' : ''; ?>>Standard / Default</option>
+                <option value="Hematology" <?php echo ($selected_template == 'Hematology') ? 'selected' : ''; ?>>Hematology</option>
+                <option value="Imaging" <?php echo (strtolower($selected_template) == 'imaging') ? 'selected' : ''; ?>>Imaging / Radiology</option>
+            </select>
+        </form>
+    </div>
+    <div class="col-md-6 text-end">
         <button onclick="window.print()" class="btn btn-primary"><i class="fas fa-print me-1"></i> Print Report</button>
         <a href="lab_orders.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i> Back to Orders</a>
     </div>

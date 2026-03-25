@@ -20,6 +20,18 @@
     border-left: 5px solid #0dcaf0;
 }
 
+.border-bottom-dashed {
+    border-bottom: 1px dashed #dee2e6;
+}
+
+.hematology-template table {
+    border: 1px solid #000;
+}
+
+.imaging-template .bg-white {
+    border: 1px solid #ccc !important;
+}
+
 @media print {
     #sidebar, .btn, .no-print, form {
         display: none !important;

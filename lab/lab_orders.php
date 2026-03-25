@@ -4,7 +4,11 @@ requireLogin();
 
 $conn = get_db_conn();
 
-$query = "SELECT o.*, c.name as customer_name FROM lab_orders o JOIN customers c ON o.customer_id = c.id ORDER BY o.order_date DESC";
+$query = "SELECT o.*, c.name as customer_name, tt.name as test_name
+          FROM lab_orders o
+          JOIN customers c ON o.customer_id = c.id
+          JOIN test_types tt ON o.test_id = tt.id
+          ORDER BY o.order_date DESC";
 $orders = $conn->query($query);
 ?>
 
@@ -24,7 +28,7 @@ $orders = $conn->query($query);
                         <th>Date</th>
                         <th>Order ID</th>
                         <th>Pet / Owner</th>
-                        <th>Species</th>
+                        <th>Test Type</th>
                         <th>Amount</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -36,10 +40,10 @@ $orders = $conn->query($query);
                         <td><?php echo formatDate($o['order_date']); ?></td>
                         <td>#<?php echo $o['id']; ?></td>
                         <td>
-                            <span class="fw-bold"><?php echo $o['pet_name']; ?></span><br>
+                            <span class="fw-bold"><?php echo $o['pet_name']; ?></span> (<?php echo $o['species']; ?>)<br>
                             <small class="text-muted"><?php echo $o['customer_name']; ?></small>
                         </td>
-                        <td><?php echo $o['species']; ?></td>
+                        <td><span class="badge bg-light text-dark border"><?php echo $o['test_name']; ?></span></td>
                         <td><?php echo formatCurrency($o['net_amount']); ?></td>
                         <td>
                             <span class="badge <?php echo ($o['status'] == 'Finalized' ? 'bg-success' : ($o['status'] == 'Pending' ? 'bg-danger' : 'bg-warning')); ?>">
