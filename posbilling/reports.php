@@ -4,6 +4,9 @@ requireLogin();
 
 $conn = get_db_conn();
 
+$from_date = isset($_GET['from_date']) ? $_GET['from_date'] : date('Y-m-d');
+$to_date = isset($_GET['to_date']) ? $_GET['to_date'] : date('Y-m-d');
+
 // Near Expiry (next 90 days)
 $expiry_query = "SELECT b.*, p.name as product_name FROM batches b JOIN products p ON b.product_id = p.id WHERE b.expiry_date <= DATE_ADD(CURDATE(), INTERVAL 90 DAY) AND b.current_qty > 0 ORDER BY b.expiry_date ASC";
 $expiry_results = $conn->query($expiry_query);
@@ -12,19 +15,41 @@ $expiry_results = $conn->query($expiry_query);
 $low_stock_query = "SELECT p.name as product_name, p.reorder_level, SUM(b.current_qty) as total_qty FROM products p JOIN batches b ON p.id = b.product_id GROUP BY p.id HAVING SUM(b.current_qty) <= p.reorder_level";
 $low_stock_results = $conn->query($low_stock_query);
 
-// Sales Report (current month)
-$sales_report_query = "SELECT SUM(net_amount) as total_sales, COUNT(*) as sale_count, DATE(sale_date) as date FROM sales WHERE MONTH(sale_date) = MONTH(CURDATE()) AND YEAR(sale_date) = YEAR(CURDATE()) GROUP BY DATE(sale_date)";
-$sales_report = $conn->query($sales_report_query);
+// Sales Report (Filter by Date Range)
+$stmt_sales = $conn->prepare("SELECT SUM(net_amount) as total_sales, COUNT(*) as sale_count, DATE(sale_date) as date FROM sales WHERE DATE(sale_date) BETWEEN ? AND ? GROUP BY DATE(sale_date)");
+$stmt_sales->bind_param("ss", $from_date, $to_date);
+$stmt_sales->execute();
+$sales_report = $stmt_sales->get_result();
 
-// Fastest Moving Items (last 30 days)
-$fast_moving_query = "SELECT p.name, SUM(si.qty) as total_qty FROM sale_items si JOIN products p ON si.product_id = p.id JOIN sales s ON si.sale_id = s.id WHERE s.sale_date >= DATE_SUB(NOW(), INTERVAL 30 DAY) GROUP BY p.id ORDER BY total_qty DESC LIMIT 10";
-$fast_moving_results = $conn->query($fast_moving_query);
+// Fastest Moving Items (Filter by Date Range)
+$stmt_fast = $conn->prepare("SELECT p.name, SUM(si.qty) as total_qty FROM sale_items si JOIN products p ON si.product_id = p.id JOIN sales s ON si.sale_id = s.id WHERE DATE(s.sale_date) BETWEEN ? AND ? GROUP BY p.id ORDER BY total_qty DESC LIMIT 10");
+$stmt_fast->bind_param("ss", $from_date, $to_date);
+$stmt_fast->execute();
+$fast_moving_results = $stmt_fast->get_result();
 ?>
 
 <div class="row">
     <div class="col-md-12 mb-4 d-flex justify-content-between align-items-center">
         <h3 class="fw-bold"><i class="fas fa-chart-bar me-2"></i>Reporting & Analytics</h3>
-        <button onclick="window.print()" class="btn btn-outline-secondary no-print"><i class="fas fa-print me-1"></i> Print Report</button>
+        <button onclick="window.print()" class="btn btn-outline-secondary no-print"><i class="fas fa-print me-1"></i> Print All</button>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4 no-print">
+    <div class="card-body">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">From Date</label>
+                <input type="date" name="from_date" class="form-control" value="<?php echo $from_date; ?>">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">To Date</label>
+                <input type="date" name="to_date" class="form-control" value="<?php echo $to_date; ?>">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Filter Reports</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -109,7 +134,7 @@ $fast_moving_results = $conn->query($fast_moving_query);
     <div class="col-md-6 mb-4 print-section">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-chart-line me-2"></i>Daily Sales</h5>
+                <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-chart-line me-2"></i>Daily Sales (<?php echo formatDate($from_date); ?> to <?php echo formatDate($to_date); ?>)</h5>
                 <button onclick="printSection(this)" class="btn btn-sm btn-outline-primary no-print"><i class="fas fa-print"></i></button>
             </div>
             <div class="card-body p-0">
@@ -146,7 +171,7 @@ $fast_moving_results = $conn->query($fast_moving_query);
     <div class="col-md-6 mb-4 print-section">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold text-success"><i class="fas fa-running me-2"></i>Fastest Moving (30 Days)</h5>
+                <h5 class="mb-0 fw-bold text-success"><i class="fas fa-running me-2"></i>Fastest Moving (<?php echo formatDate($from_date); ?> to <?php echo formatDate($to_date); ?>)</h5>
                 <button onclick="printSection(this)" class="btn btn-sm btn-outline-success no-print"><i class="fas fa-print"></i></button>
             </div>
             <div class="card-body p-0">
