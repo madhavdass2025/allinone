@@ -29,19 +29,20 @@ if (isLoggedIn()): ?>
 
             <li class="px-3 py-2 small text-uppercase opacity-50 mt-3 fw-bold">Inventory</li>
             <li><a href="products.php"><i class="fas fa-capsules me-2"></i> Products</a></li>
+            <li><a href="product_stock_list.php"><i class="fas fa-boxes me-2"></i> Product Stock</a></li>
             <li><a href="batches.php"><i class="fas fa-layer-group me-2"></i> Batch Stock</a></li>
             <li><a href="expiry_alerts.php"><i class="fas fa-calendar-times me-2"></i> Expiry Alerts</a></li>
 
             <li class="px-3 py-2 small text-uppercase opacity-50 mt-3 fw-bold">Procurement</li>
             <li><a href="suppliers.php"><i class="fas fa-truck me-2"></i> Suppliers</a></li>
             <li><a href="purchase_list.php"><i class="fas fa-history me-2"></i> Purchase History</a></li>
+            <li><a href="purchase_return_list.php"><i class="fas fa-undo-alt me-2"></i> Purchase Returns</a></li>
             <li><a href="purchases.php"><i class="fas fa-plus-circle me-2"></i> New Purchase</a></li>
 
             <li class="px-3 py-2 small text-uppercase opacity-50 mt-3 fw-bold">Management</li>
             <li><a href="customers.php"><i class="fas fa-users me-2"></i> Customers</a></li>
             <li><a href="payments.php"><i class="fas fa-money-bill-wave me-2"></i> Payments</a></li>
-            <li><a href="sale_returns.php"><i class="fas fa-undo me-2"></i> Sale Returns</a></li>
-            <li><a href="purchase_returns.php"><i class="fas fa-undo-alt me-2"></i> Purchase Returns</a></li>
+            <li><a href="sale_return_list.php"><i class="fas fa-undo me-2"></i> Sale Returns</a></li>
             <li><a href="reports.php"><i class="fas fa-chart-line me-2"></i> Reports</a></li>
         </ul>
 

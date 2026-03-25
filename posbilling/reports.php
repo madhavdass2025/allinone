@@ -15,6 +15,10 @@ $low_stock_results = $conn->query($low_stock_query);
 // Sales Report (current month)
 $sales_report_query = "SELECT SUM(net_amount) as total_sales, COUNT(*) as sale_count, DATE(sale_date) as date FROM sales WHERE MONTH(sale_date) = MONTH(CURDATE()) AND YEAR(sale_date) = YEAR(CURDATE()) GROUP BY DATE(sale_date)";
 $sales_report = $conn->query($sales_report_query);
+
+// Fastest Moving Items (last 30 days)
+$fast_moving_query = "SELECT p.name, SUM(si.qty) as total_qty FROM sale_items si JOIN products p ON si.product_id = p.id JOIN sales s ON si.sale_id = s.id WHERE s.sale_date >= DATE_SUB(NOW(), INTERVAL 30 DAY) GROUP BY p.id ORDER BY total_qty DESC LIMIT 10";
+$fast_moving_results = $conn->query($fast_moving_query);
 ?>
 
 <div class="row">
@@ -26,10 +30,11 @@ $sales_report = $conn->query($sales_report_query);
 
 <div class="row">
     <!-- Near Expiry Items -->
-    <div class="col-md-6 mb-4">
+    <div class="col-md-6 mb-4 print-section">
         <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold text-danger"><i class="fas fa-calendar-times me-2"></i>Near Expiry Items (90 Days)</h5>
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-danger"><i class="fas fa-calendar-times me-2"></i>Near Expiry Items</h5>
+                <button onclick="printSection(this)" class="btn btn-sm btn-outline-danger no-print"><i class="fas fa-print"></i></button>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -63,10 +68,11 @@ $sales_report = $conn->query($sales_report_query);
     </div>
 
     <!-- Low Stock Items -->
-    <div class="col-md-6 mb-4">
+    <div class="col-md-6 mb-4 print-section">
         <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold text-warning"><i class="fas fa-exclamation-triangle me-2"></i>Low Stock (Reorder Alerts)</h5>
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-warning"><i class="fas fa-exclamation-triangle me-2"></i>Low Stock Alerts</h5>
+                <button onclick="printSection(this)" class="btn btn-sm btn-outline-warning no-print"><i class="fas fa-print"></i></button>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -100,10 +106,11 @@ $sales_report = $conn->query($sales_report_query);
 
 <div class="row">
     <!-- Daily Sales Report -->
-    <div class="col-md-12 mb-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-chart-line me-2"></i>Daily Sales Report (Current Month)</h5>
+    <div class="col-md-6 mb-4 print-section">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-chart-line me-2"></i>Daily Sales</h5>
+                <button onclick="printSection(this)" class="btn btn-sm btn-outline-primary no-print"><i class="fas fa-print"></i></button>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -134,5 +141,56 @@ $sales_report = $conn->query($sales_report_query);
         </div>
     </div>
 </div>
+
+    <!-- Fastest Moving Items -->
+    <div class="col-md-6 mb-4 print-section">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-success"><i class="fas fa-running me-2"></i>Fastest Moving (30 Days)</h5>
+                <button onclick="printSection(this)" class="btn btn-sm btn-outline-success no-print"><i class="fas fa-print"></i></button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Quantity Sold</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($fast_moving_results->num_rows > 0): ?>
+                                <?php while($row = $fast_moving_results->fetch_assoc()): ?>
+                                <tr>
+                                    <td><?php echo $row['name']; ?></td>
+                                    <td class="fw-bold text-success"><?php echo $row['total_qty']; ?></td>
+                                </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr><td colspan="2" class="text-center py-4">No sales data available.</td></tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function printSection(btn) {
+    const section = btn.closest('.print-section');
+    const originalContent = document.body.innerHTML;
+
+    // Add a title for the print
+    const title = section.querySelector('h5').innerText;
+    const printHeader = `<h2 class='text-center mb-4'>${title}</h2>`;
+
+    document.body.innerHTML = printHeader + section.innerHTML;
+    window.print();
+    document.body.innerHTML = originalContent;
+    window.location.reload(); // Reload to restore event listeners
+}
+</script>
 
 <?php include 'includes/footer.php'; ?>

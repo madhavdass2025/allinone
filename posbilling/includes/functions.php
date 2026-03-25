@@ -40,6 +40,28 @@ function formatDate($date) {
     return date('d/m/Y', strtotime($date));
 }
 
+function getPagination($total_records, $limit, $page, $url) {
+    $total_pages = ceil($total_records / $limit);
+    if ($total_pages <= 1) return '';
+
+    $html = '<nav aria-label="Page navigation"><ul class="pagination pagination-sm justify-content-end mb-0 no-print">';
+
+    $prev_disabled = ($page <= 1) ? 'disabled' : '';
+    $html .= '<li class="page-item ' . $prev_disabled . '"><a class="page-item" href="' . $url . '&page=' . ($page - 1) . '"></a></li>';
+    $html .= "<li class='page-item $prev_disabled'><a class='page-link' href='{$url}&page=" . ($page - 1) . "'>Previous</a></li>";
+
+    for ($i = 1; $i <= $total_pages; $i++) {
+        $active = ($page == $i) ? 'active' : '';
+        $html .= "<li class='page-item $active'><a class='page-link' href='{$url}&page=$i'>$i</a></li>";
+    }
+
+    $next_disabled = ($page >= $total_pages) ? 'disabled' : '';
+    $html .= "<li class='page-item $next_disabled'><a class='page-link' href='{$url}&page=" . ($page + 1) . "'>Next</a></li>";
+    $html .= '</ul></nav>';
+
+    return $html;
+}
+
 function flashMessage($name = '', $message = '', $class = 'alert alert-success') {
     if (!empty($name)) {
         if (!empty($message) && empty($_SESSION[$name])) {

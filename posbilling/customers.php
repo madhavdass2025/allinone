@@ -29,16 +29,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+$limit = 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$start = ($page - 1) * $limit;
+
 $search = isset($_GET['search']) ? sanitizeInput($_GET['search']) : '';
+$where = "WHERE 1=1";
 if ($search) {
     $searchTerm = "%$search%";
-    $stmt = $conn->prepare("SELECT * FROM customers WHERE name LIKE ? OR phone LIKE ?");
-    $stmt->bind_param("ss", $searchTerm, $searchTerm);
-    $stmt->execute();
-    $customers = $stmt->get_result();
-} else {
-    $customers = $conn->query("SELECT * FROM customers");
+    $where .= " AND (name LIKE ? OR phone LIKE ?)";
 }
+
+$count_stmt = $conn->prepare("SELECT COUNT(*) as count FROM customers $where");
+if ($search) $count_stmt->bind_param("ss", $searchTerm, $searchTerm);
+$count_stmt->execute();
+$total_records = $count_stmt->get_result()->fetch_assoc()['count'];
+
+$stmt = $conn->prepare("SELECT * FROM customers $where LIMIT ?, ?");
+if ($search) {
+    $stmt->bind_param("ssii", $searchTerm, $searchTerm, $start, $limit);
+} else {
+    $stmt->bind_param("ii", $start, $limit);
+}
+$stmt->execute();
+$customers = $stmt->get_result();
 ?>
 
 <div class="row">
@@ -51,6 +65,11 @@ if ($search) {
             </button>
         </div>
     </div>
+    <?php if ($total_records > $limit): ?>
+    <div class="card-footer bg-white">
+        <?php echo getPagination($total_records, $limit, $page, "customers.php?search=$search"); ?>
+    </div>
+    <?php endif; ?>
 </div>
 
 <div class="card shadow-sm border-0 mb-4">

@@ -4,16 +4,30 @@ requireLogin();
 
 $conn = get_db_conn();
 
+$limit = 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$start = ($page - 1) * $limit;
+
 $search = isset($_GET['search']) ? sanitizeInput($_GET['search']) : '';
+$where = "WHERE 1=1";
 if ($search) {
     $searchTerm = "%$search%";
-    $stmt = $conn->prepare("SELECT b.*, p.name as product_name FROM batches b JOIN products p ON b.product_id = p.id WHERE p.name LIKE ? OR b.batch_num LIKE ?");
-    $stmt->bind_param("ss", $searchTerm, $searchTerm);
-    $stmt->execute();
-    $batches = $stmt->get_result();
-} else {
-    $batches = $conn->query("SELECT b.*, p.name as product_name FROM batches b JOIN products p ON b.product_id = p.id");
+    $where .= " AND (p.name LIKE ? OR b.batch_num LIKE ?)";
 }
+
+$count_stmt = $conn->prepare("SELECT COUNT(*) as count FROM batches b JOIN products p ON b.product_id = p.id $where");
+if ($search) $count_stmt->bind_param("ss", $searchTerm, $searchTerm);
+$count_stmt->execute();
+$total_records = $count_stmt->get_result()->fetch_assoc()['count'];
+
+$stmt = $conn->prepare("SELECT b.*, p.name as product_name FROM batches b JOIN products p ON b.product_id = p.id $where ORDER BY b.expiry_date ASC LIMIT ?, ?");
+if ($search) {
+    $stmt->bind_param("ssii", $searchTerm, $searchTerm, $start, $limit);
+} else {
+    $stmt->bind_param("ii", $start, $limit);
+}
+$stmt->execute();
+$batches = $stmt->get_result();
 ?>
 
 <div class="row">
@@ -21,6 +35,11 @@ if ($search) {
         <h3 class="fw-bold"><i class="fas fa-layer-group me-2"></i>Batch Inventory</h3>
         <button onclick="window.print()" class="btn btn-outline-secondary no-print"><i class="fas fa-print me-1"></i> Print List</button>
     </div>
+    <?php if ($total_records > $limit): ?>
+    <div class="card-footer bg-white">
+        <?php echo getPagination($total_records, $limit, $page, "batches.php?search=$search"); ?>
+    </div>
+    <?php endif; ?>
 </div>
 
 <div class="card shadow-sm border-0 mb-4">
