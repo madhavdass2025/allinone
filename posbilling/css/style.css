@@ -1,0 +1,40 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    font-weight: 500;
+}
+
+.table > :not(caption) > * > * {
+    padding: .75rem .75rem;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    padding: 0.6rem .75rem;
+}
+
+.badge {
+    padding: 0.5em 0.8em;
+    border-radius: 6px;
+}

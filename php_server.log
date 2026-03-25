@@ -1,0 +1,46 @@
+[Wed Mar 25 05:24:40 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
+[Wed Mar 25 05:24:56 2026] [::1]:34724 Accepted
+[Wed Mar 25 05:24:56 2026] [::1]:34724 [200]: GET /login.php
+[Wed Mar 25 05:24:56 2026] [::1]:34724 Closing
+[Wed Mar 25 05:24:57 2026] [::1]:34734 Accepted
+[Wed Mar 25 05:24:57 2026] [::1]:34734 [302]: POST /login.php
+[Wed Mar 25 05:24:57 2026] [::1]:34734 Closing
+[Wed Mar 25 05:24:57 2026] [::1]:34738 Accepted
+[Wed Mar 25 05:24:57 2026] PHP Warning:  Trying to access array offset on null in /app/posbilling/dashboard.php on line 10
+[Wed Mar 25 05:24:57 2026] PHP Warning:  Trying to access array offset on null in /app/posbilling/dashboard.php on line 11
+[Wed Mar 25 05:24:57 2026] PHP Warning:  Trying to access array offset on null in /app/posbilling/dashboard.php on line 12
+[Wed Mar 25 05:24:57 2026] [::1]:34738 [200]: GET /dashboard.php
+[Wed Mar 25 05:24:57 2026] [::1]:34738 Closing
+[Wed Mar 25 05:24:57 2026] [::1]:34744 Accepted
+[Wed Mar 25 05:24:57 2026] [::1]:34744 [200]: GET /css/style.css
+[Wed Mar 25 05:24:57 2026] [::1]:34744 Closing
+[Wed Mar 25 05:24:57 2026] [::1]:34760 Accepted
+[Wed Mar 25 05:24:57 2026] [::1]:34760 [200]: GET /js/main.js
+[Wed Mar 25 05:24:57 2026] [::1]:34760 Closing
+[Wed Mar 25 05:24:57 2026] [::1]:34772 Accepted
+[Wed Mar 25 05:24:57 2026] [::1]:34772 [200]: GET /products.php
+[Wed Mar 25 05:24:57 2026] [::1]:34772 Closing
+[Wed Mar 25 05:24:57 2026] [::1]:34778 Accepted
+[Wed Mar 25 05:24:57 2026] [::1]:34780 Accepted
+[Wed Mar 25 05:24:57 2026] [::1]:34778 [200]: GET /css/style.css
+[Wed Mar 25 05:24:57 2026] [::1]:34780 [200]: GET /js/main.js
+[Wed Mar 25 05:24:57 2026] [::1]:34778 Closing
+[Wed Mar 25 05:24:57 2026] [::1]:34780 Closing
+[Wed Mar 25 05:24:57 2026] [::1]:34796 Accepted
+[Wed Mar 25 05:24:57 2026] [::1]:34796 [200]: GET /pos.php
+[Wed Mar 25 05:24:57 2026] [::1]:34796 Closing
+[Wed Mar 25 05:24:57 2026] [::1]:34810 Accepted
+[Wed Mar 25 05:24:57 2026] [::1]:34826 Accepted
+[Wed Mar 25 05:24:57 2026] [::1]:34810 [200]: GET /css/style.css
+[Wed Mar 25 05:24:57 2026] [::1]:34826 [200]: GET /js/main.js
+[Wed Mar 25 05:24:57 2026] [::1]:34810 Closing
+[Wed Mar 25 05:24:57 2026] [::1]:34826 Closing
+[Wed Mar 25 05:24:58 2026] [::1]:34832 Accepted
+[Wed Mar 25 05:24:58 2026] [::1]:34832 [200]: GET /sale_returns.php
+[Wed Mar 25 05:24:58 2026] [::1]:34832 Closing
+[Wed Mar 25 05:24:58 2026] [::1]:34840 Accepted
+[Wed Mar 25 05:24:58 2026] [::1]:34848 Accepted
+[Wed Mar 25 05:24:58 2026] [::1]:34840 [200]: GET /css/style.css
+[Wed Mar 25 05:24:58 2026] [::1]:34840 Closing
+[Wed Mar 25 05:24:58 2026] [::1]:34848 [200]: GET /js/main.js
+[Wed Mar 25 05:24:58 2026] [::1]:34848 Closing
