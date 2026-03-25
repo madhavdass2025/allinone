@@ -37,7 +37,7 @@ $batches = $stmt->get_result();
     </div>
     <?php if ($total_records > $limit): ?>
     <div class="card-footer bg-white">
-        <?php echo getPagination($total_records, $limit, $page, "batches.php?search=$search"); ?>
+        <?php echo getPagination($total_records, $limit, $page, "batches.php?search=" . urlencode($search) . ""); ?>
     </div>
     <?php endif; ?>
 </div>

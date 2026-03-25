@@ -34,9 +34,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $inventoryService->addStock($product_id, $batch_num, $expiry, $qty, $cost, $selling, $mrp);
 
-            $item_stmt = $conn->prepare("INSERT INTO purchase_items (purchase_id, product_id, batch_num, expiry_date, qty, cost_price, total_amount) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $item_total = $qty * $cost;
-            $item_stmt->bind_param("iissddd", $purchase_id, $product_id, $batch_num, $expiry, $qty, $cost, $item_total);
+            // Fetch product tax rate for purchase_items
+            $p_tax_stmt = $conn->prepare("SELECT gst_rate FROM products WHERE id = ?");
+            $p_tax_stmt->bind_param("i", $product_id);
+            $p_tax_stmt->execute();
+            $p_tax_rate = $p_tax_stmt->get_result()->fetch_assoc()['gst_rate'] ?? 0;
+
+            $item_stmt = $conn->prepare("INSERT INTO purchase_items (purchase_id, product_id, batch_num, expiry_date, qty, cost_price, tax_rate, tax_amount, total_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $item_taxable = $qty * $cost;
+            $item_tax = $item_taxable * ($p_tax_rate / 100);
+            $item_total = $item_taxable + $item_tax;
+            $item_stmt->bind_param("iissddddd", $purchase_id, $product_id, $batch_num, $expiry, $qty, $cost, $p_tax_rate, $item_tax, $item_total);
             $item_stmt->execute();
             $total_amount += $item_total;
         }

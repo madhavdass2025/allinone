@@ -11,7 +11,8 @@ $start = ($page - 1) * $limit;
 $search = isset($_GET['search']) ? sanitizeInput($_GET['search']) : '';
 $where = "WHERE 1=1";
 if ($search) {
-    $where .= " AND (p.invoice_num LIKE '%$search%' OR s.name LIKE '%$search%')";
+    $searchTerm = "%$search%";
+    $where .= " AND (p.invoice_num LIKE ? OR s.name LIKE ?)";
 }
 
 $count_stmt = $conn->prepare("SELECT COUNT(*) as count FROM purchase_returns pr JOIN purchases p ON pr.purchase_id = p.id LEFT JOIN suppliers s ON p.supplier_id = s.id $where");
@@ -82,7 +83,7 @@ $returns = $stmt->get_result();
     </div>
     <?php if ($total_records > $limit): ?>
     <div class="card-footer bg-white">
-        <?php echo getPagination($total_records, $limit, $page, "purchase_return_list.php?search=$search"); ?>
+        <?php echo getPagination($total_records, $limit, $page, "purchase_return_list.php?search=" . urlencode($search) . ""); ?>
     </div>
     <?php endif; ?>
 </div>

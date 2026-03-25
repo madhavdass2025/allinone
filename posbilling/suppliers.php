@@ -68,7 +68,7 @@ $suppliers = $stmt->get_result();
     </div>
     <?php if ($total_records > $limit): ?>
     <div class="card-footer bg-white">
-        <?php echo getPagination($total_records, $limit, $page, "suppliers.php?search=$search"); ?>
+        <?php echo getPagination($total_records, $limit, $page, "suppliers.php?search=" . urlencode($search) . ""); ?>
     </div>
     <?php endif; ?>
 </div>

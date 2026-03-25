@@ -11,7 +11,8 @@ $start = ($page - 1) * $limit;
 $search = isset($_GET['search']) ? sanitizeInput($_GET['search']) : '';
 $where = "WHERE 1=1";
 if ($search) {
-    $where .= " AND (p.name LIKE '%$search%' OR p.generic_name LIKE '%$search%')";
+    $searchTerm = "%$search%";
+    $where .= " AND (p.name LIKE ? OR p.generic_name LIKE ?)";
 }
 
 $count_stmt = $conn->prepare("SELECT COUNT(*) as count FROM products p $where");
@@ -100,7 +101,7 @@ $products = $stmt->get_result();
     </div>
     <?php if ($total_records > $limit): ?>
     <div class="card-footer bg-white">
-        <?php echo getPagination($total_records, $limit, $page, "product_stock_list.php?search=$search"); ?>
+        <?php echo getPagination($total_records, $limit, $page, "product_stock_list.php?search=" . urlencode($search) . ""); ?>
     </div>
     <?php endif; ?>
 </div>

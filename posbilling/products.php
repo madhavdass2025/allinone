@@ -68,11 +68,6 @@ $products = $stmt->get_result();
             </button>
         </div>
     </div>
-    <?php if ($total_records > $limit): ?>
-    <div class="card-footer bg-white">
-        <?php echo getPagination($total_records, $limit, $page, "products.php?search=$search"); ?>
-    </div>
-    <?php endif; ?>
 </div>
 
 <div class="card shadow-sm border-0 mb-4">
@@ -121,6 +116,11 @@ $products = $stmt->get_result();
             </table>
         </div>
     </div>
+    <?php if ($total_records > $limit): ?>
+    <div class="card-footer bg-white">
+        <?php echo getPagination($total_records, $limit, $page, "products.php?search=" . urlencode($search)); ?>
+    </div>
+    <?php endif; ?>
 </div>
 
 <!-- Add/Edit Product Modal -->
