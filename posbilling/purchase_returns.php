@@ -43,11 +43,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $total_return += $return_amount;
         }
 
-        $conn->query("UPDATE purchase_returns SET total_return_amount = $total_return WHERE id = $return_id");
+        $upd_pr_stmt = $conn->prepare("UPDATE purchase_returns SET total_return_amount = ? WHERE id = ?");
+        $upd_pr_stmt->bind_param("di", $total_return, $return_id);
+        $upd_pr_stmt->execute();
 
-        $purchase_info = $conn->query("SELECT supplier_id FROM purchases WHERE id = $purchase_id")->fetch_assoc();
+        $ps_stmt = $conn->prepare("SELECT supplier_id FROM purchases WHERE id = ?");
+        $ps_stmt->bind_param("i", $purchase_id);
+        $ps_stmt->execute();
+        $purchase_info = $ps_stmt->get_result()->fetch_assoc();
+
         if ($purchase_info['supplier_id']) {
-            $conn->query("UPDATE suppliers SET balance = balance - $total_return WHERE id = " . $purchase_info['supplier_id']);
+            $upd_supp_stmt = $conn->prepare("UPDATE suppliers SET balance = balance - ? WHERE id = ?");
+            $upd_supp_stmt->bind_param("di", $total_return, $purchase_info['supplier_id']);
+            $upd_supp_stmt->execute();
         }
 
         $conn->commit();
@@ -61,7 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $purchase_id = isset($_GET['purchase_id']) ? (int)$_GET['purchase_id'] : 0;
 $purchase_items = [];
 if ($purchase_id) {
-    $purchase_items = $conn->query("SELECT pi.*, p.name as product_name FROM purchase_items pi JOIN products p ON pi.product_id = p.id WHERE pi.purchase_id = $purchase_id");
+    $pi_list_stmt = $conn->prepare("SELECT pi.*, p.name as product_name FROM purchase_items pi JOIN products p ON pi.product_id = p.id WHERE pi.purchase_id = ?");
+    $pi_list_stmt->bind_param("i", $purchase_id);
+    $pi_list_stmt->execute();
+    $purchase_items = $pi_list_stmt->get_result();
 }
 ?>
 

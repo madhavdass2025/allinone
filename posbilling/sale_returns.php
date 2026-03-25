@@ -46,12 +46,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Update total refund
-        $conn->query("UPDATE sale_returns SET total_refund_amount = $total_refund WHERE id = $return_id");
+        $upd_sr_stmt = $conn->prepare("UPDATE sale_returns SET total_refund_amount = ? WHERE id = ?");
+        $upd_sr_stmt->bind_param("di", $total_refund, $return_id);
+        $upd_sr_stmt->execute();
 
         // Update customer balance if applicable
-        $sale_info = $conn->query("SELECT customer_id FROM sales WHERE id = $sale_id")->fetch_assoc();
+        $si_stmt_info = $conn->prepare("SELECT customer_id FROM sales WHERE id = ?");
+        $si_stmt_info->bind_param("i", $sale_id);
+        $si_stmt_info->execute();
+        $sale_info = $si_stmt_info->get_result()->fetch_assoc();
+
         if ($sale_info['customer_id']) {
-            $conn->query("UPDATE customers SET current_due = current_due - $total_refund WHERE id = " . $sale_info['customer_id']);
+            $upd_cust_due = $conn->prepare("UPDATE customers SET current_due = current_due - ? WHERE id = ?");
+            $upd_cust_due->bind_param("di", $total_refund, $sale_info['customer_id']);
+            $upd_cust_due->execute();
         }
 
         $conn->commit();
@@ -65,7 +73,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $sale_id = isset($_GET['sale_id']) ? (int)$_GET['sale_id'] : 0;
 $sale_items = [];
 if ($sale_id) {
-    $sale_items = $conn->query("SELECT si.*, p.name as product_name, b.batch_num FROM sale_items si JOIN products p ON si.product_id = p.id JOIN batches b ON si.batch_id = b.id WHERE si.sale_id = $sale_id");
+    $si_list_stmt = $conn->prepare("SELECT si.*, p.name as product_name, b.batch_num FROM sale_items si JOIN products p ON si.product_id = p.id JOIN batches b ON si.batch_id = b.id WHERE si.sale_id = ?");
+    $si_list_stmt->bind_param("i", $sale_id);
+    $si_list_stmt->execute();
+    $sale_items = $si_list_stmt->get_result();
 }
 ?>
 

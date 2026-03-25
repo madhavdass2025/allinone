@@ -48,7 +48,8 @@ if (isLoggedIn()): ?>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="suppliers.php">Suppliers</a></li>
-                            <li><a class="dropdown-item" href="purchases.php">Purchases</a></li>
+                            <li><a class="dropdown-item" href="purchase_list.php">Purchase History</a></li>
+                            <li><a class="dropdown-item" href="purchases.php">New Purchase</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
