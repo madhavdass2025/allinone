@@ -18,18 +18,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($customer_id === 0) $customer_id = null;
     $items = json_decode($_POST['items'], true);
     $discount = (float)$_POST['discount'];
-    $payment_mode = $_POST['payment_mode'];
     $payments = [];
-    if ($payment_mode === 'Mixed') {
-        if ((float)$_POST['split_cash'] > 0) $payments[] = ['mode' => 'Cash', 'amount' => (float)$_POST['split_cash'], 'ref' => 'Split'];
-        if ((float)$_POST['split_card'] > 0) $payments[] = ['mode' => 'Card', 'amount' => (float)$_POST['split_card'], 'ref' => 'Split'];
-        if ((float)$_POST['split_upi'] > 0) $payments[] = ['mode' => 'UPI', 'amount' => (float)$_POST['split_upi'], 'ref' => 'Split'];
-        if ((float)$_POST['split_advance'] > 0) $payments[] = ['mode' => 'Advance', 'amount' => (float)$_POST['split_advance'], 'ref' => 'Split'];
-        if ((float)$_POST['split_credit'] > 0) $payments[] = ['mode' => 'Credit', 'amount' => (float)$_POST['split_credit'], 'ref' => 'Split'];
-    } else {
-        $amount_paid = (float)$_POST['amount_paid'];
-        $payments[] = ['mode' => $payment_mode, 'amount' => $amount_paid, 'ref' => ''];
-    }
+    if ((float)$_POST['split_cash'] > 0) $payments[] = ['mode' => 'Cash', 'amount' => (float)$_POST['split_cash'], 'ref' => 'Split'];
+    if ((float)$_POST['split_card'] > 0) $payments[] = ['mode' => 'Card', 'amount' => (float)$_POST['split_card'], 'ref' => 'Split'];
+    if ((float)$_POST['split_upi'] > 0) $payments[] = ['mode' => 'UPI', 'amount' => (float)$_POST['split_upi'], 'ref' => 'Split'];
+    if ((float)$_POST['split_advance'] > 0) $payments[] = ['mode' => 'Advance', 'amount' => (float)$_POST['split_advance'], 'ref' => 'Split'];
+    if ((float)$_POST['split_credit'] > 0) $payments[] = ['mode' => 'Credit', 'amount' => (float)$_POST['split_credit'], 'ref' => 'Split'];
+
+    $payment_mode = (count($payments) > 1) ? 'Mixed' : ($payments[0]['mode'] ?? 'Cash');
 
     $sale_id = $salesService->processSale($customer_id, $items, $discount, $payment_mode, $payments);
     if ($sale_id) {
@@ -128,72 +124,68 @@ $all_products = $conn->query("SELECT p.*, SUM(b.current_qty) as stock FROM produ
                         <h4 class="fw-bold text-primary" id="grand_total">₹0.00</h4>
                     </div>
                     <hr>
-                    <div class="mb-3">
-                        <label class="form-label">Payment Mode</label>
-                        <select name="payment_mode" id="payment_mode" class="form-select" onchange="toggleMixedPayment(this.value)">
-                            <option value="Cash">Cash</option>
-                            <option value="Card">Card</option>
-                            <option value="UPI">UPI</option>
-                            <option value="Credit">Credit</option>
-                            <option value="Mixed">Mixed (Split Payment)</option>
-                        </select>
-                    </div>
-                    <div id="single_payment_div">
-                        <div class="mb-3">
-                            <label class="form-label">Amount Paid</label>
-                            <input type="number" step="0.01" name="amount_paid" class="form-control">
-                        </div>
-                    </div>
-                    <div id="mixed_payment_div" style="display:none;" class="bg-light p-3 border rounded">
-                        <h6 class="fw-bold mb-3 border-bottom pb-2">Split Payment Details</h6>
+                    <div id="payment_section" class="bg-light p-3 border rounded">
+                        <h6 class="fw-bold mb-3 border-bottom pb-2"><i class="fas fa-money-bill-wave me-2"></i>Payment Details</h6>
+
                         <div class="row g-2 mb-2">
                             <div class="col-6">
-                                <label class="small fw-bold">Cash</label>
+                                <label class="small fw-bold text-muted">Cash</label>
                                 <div class="input-group input-group-sm">
                                     <input type="number" name="split_cash" class="form-control split-input" value="0" step="0.01">
-                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_cash"><i class="fas fa-magic"></i></button>
+                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_cash" title="Autofill"><i class="fas fa-magic"></i></button>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <label class="small fw-bold">Card</label>
+                                <label class="small fw-bold text-muted">Card</label>
                                 <div class="input-group input-group-sm">
                                     <input type="number" name="split_card" class="form-control split-input" value="0" step="0.01">
-                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_card"><i class="fas fa-magic"></i></button>
+                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_card" title="Autofill"><i class="fas fa-magic"></i></button>
                                 </div>
                             </div>
                         </div>
+
                         <div class="row g-2 mb-2">
                             <div class="col-6">
-                                <label class="small fw-bold">UPI</label>
+                                <label class="small fw-bold text-muted">UPI (Digital)</label>
                                 <div class="input-group input-group-sm">
                                     <input type="number" name="split_upi" class="form-control split-input" value="0" step="0.01">
-                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_upi"><i class="fas fa-magic"></i></button>
+                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_upi" title="Autofill"><i class="fas fa-magic"></i></button>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <label class="small fw-bold">Advance</label>
+                                <label class="small fw-bold text-muted">Use Advance</label>
                                 <div class="input-group input-group-sm">
-                                    <input type="number" name="split_advance" class="form-control split-input" value="0" step="0.01">
-                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_advance"><i class="fas fa-magic"></i></button>
+                                    <input type="number" name="split_advance" id="pay_advance" class="form-control split-input" value="0" step="0.01" readonly>
+                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_advance" id="btn_advance" disabled><i class="fas fa-magic"></i></button>
                                 </div>
                             </div>
                         </div>
+
                         <div class="row g-2 mb-3">
                             <div class="col-6">
-                                <label class="small fw-bold">On Credit</label>
+                                <label class="small fw-bold text-primary">On Credit</label>
                                 <div class="input-group input-group-sm">
-                                    <input type="number" name="split_credit" class="form-control split-input" value="0" step="0.01">
-                                    <button type="button" class="btn btn-outline-secondary autofill-btn" data-field="split_credit"><i class="fas fa-magic"></i></button>
+                                    <input type="number" name="split_credit" id="pay_credit" class="form-control split-input" value="0" step="0.01" readonly>
+                                    <button type="button" class="btn btn-outline-primary autofill-btn" data-field="split_credit" id="btn_credit" disabled><i class="fas fa-magic"></i></button>
+                                </div>
+                            </div>
+                            <div class="col-6 text-end pt-3">
+                                <div id="change_return_div" style="display:none;">
+                                    <span class="small text-muted">Change:</span><br>
+                                    <span class="fw-bold text-success" id="change_amount">₹0.00</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-between small border-top pt-2">
-                            <span>Total Entered:</span>
-                            <span id="split_total" class="fw-bold text-success">₹0.00</span>
-                        </div>
-                        <div class="d-flex justify-content-between small">
-                            <span>Remaining:</span>
-                            <span id="split_remaining" class="fw-bold text-danger">₹0.00</span>
+
+                        <div class="border-top pt-2">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="small fw-bold">Total Paid:</span>
+                                <span id="split_total" class="fw-bold text-success">₹0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="small fw-bold">Remaining:</span>
+                                <span id="split_remaining" class="fw-bold text-danger">₹0.00</span>
+                            </div>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-success w-100 py-3 fw-bold fs-5">PROCESS SALE</button>
@@ -278,26 +270,33 @@ function removeItem(index) {
     renderTable();
 }
 
-function toggleMixedPayment(val) {
-    if (val === 'Mixed') {
-        document.getElementById('mixed_payment_div').style.display = 'block';
-        document.getElementById('single_payment_div').style.display = 'none';
-        updateSplitSummary();
-    } else {
-        document.getElementById('mixed_payment_div').style.display = 'none';
-        document.getElementById('single_payment_div').style.display = 'block';
-    }
-}
-
 function updateSplitSummary() {
     const grandTotal = parseFloat(document.getElementById('grand_total').innerText.replace('₹', '')) || 0;
-    let totalEntered = 0;
-    document.querySelectorAll('.split-input').forEach(input => {
-        totalEntered += parseFloat(input.value) || 0;
-    });
+    let cash = parseFloat(document.querySelector('input[name="split_cash"]').value) || 0;
+    let card = parseFloat(document.querySelector('input[name="split_card"]').value) || 0;
+    let upi = parseFloat(document.querySelector('input[name="split_upi"]').value) || 0;
+    let advance = parseFloat(document.querySelector('input[name="split_advance"]').value) || 0;
+    let credit = parseFloat(document.querySelector('input[name="split_credit"]').value) || 0;
 
-    document.getElementById('split_total').innerText = '₹' + totalEntered.toFixed(2);
-    document.getElementById('split_remaining').innerText = '₹' + Math.max(0, grandTotal - totalEntered).toFixed(2);
+    let totalPaid = cash + card + upi + advance + credit;
+
+    document.getElementById('split_total').innerText = '₹' + totalPaid.toFixed(2);
+
+    let remaining = grandTotal - totalPaid;
+    let change = 0;
+    if (remaining < 0) {
+        change = Math.abs(remaining);
+        remaining = 0;
+    }
+
+    document.getElementById('split_remaining').innerText = '₹' + remaining.toFixed(2);
+
+    if (change > 0) {
+        document.getElementById('change_return_div').style.display = 'block';
+        document.getElementById('change_amount').innerText = '₹' + change.toFixed(2);
+    } else {
+        document.getElementById('change_return_div').style.display = 'none';
+    }
 }
 
 document.querySelectorAll('.split-input').forEach(input => {
@@ -326,12 +325,32 @@ function fetchCustomerAdvance(val) {
     const option = select.options[select.selectedIndex];
     const advance = parseFloat(option.getAttribute('data-advance')) || 0;
 
-    if (advance > 0) {
-        alert.style.display = 'block';
-        avail.innerText = '₹' + advance.toFixed(2);
+    const advInput = document.getElementById('pay_advance');
+    const advBtn = document.getElementById('btn_advance');
+    const credInput = document.getElementById('pay_credit');
+    const credBtn = document.getElementById('btn_credit');
+
+    if (val != "0") {
+        advInput.readOnly = false;
+        advBtn.disabled = false;
+        credInput.readOnly = false;
+        credBtn.disabled = false;
+        if (advance > 0) {
+            alert.style.display = 'block';
+            avail.innerText = '₹' + advance.toFixed(2);
+        } else {
+            alert.style.display = 'none';
+        }
     } else {
+        advInput.readOnly = true;
+        advInput.value = 0;
+        advBtn.disabled = true;
+        credInput.readOnly = true;
+        credInput.value = 0;
+        credBtn.disabled = true;
         alert.style.display = 'none';
     }
+    updateSplitSummary();
 }
 
 document.getElementById('discount').addEventListener('input', renderTable);
