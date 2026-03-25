@@ -48,6 +48,9 @@ if (isLoggedIn()): ?>
             <li><a href="payments.php"><i class="fas fa-money-bill-wave me-2"></i> Payments</a></li>
             <li><a href="sale_return_list.php"><i class="fas fa-undo me-2"></i> Sale Returns</a></li>
             <li><a href="reports.php"><i class="fas fa-chart-line me-2"></i> Reports</a></li>
+
+            <li class="px-3 py-2 small text-uppercase opacity-50 mt-3 fw-bold text-info">Clinical Services</li>
+            <li><a href="../lab/dashboard.php"><i class="fas fa-microscope me-2"></i> Laboratory (LIS)</a></li>
         </ul>
 
         <div class="mt-auto p-3 border-top bg-dark text-white">
